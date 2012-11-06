@@ -80,7 +80,7 @@ def main():
 
     rows = soup.find(id="body").find_all('tr')
 
-    columns = [ "Execution", "Offender", "Last Statement", "Last Name", "First Name", "TDCJ Number", "41", "Date", "Race", "County" ]
+    columns = [ "id", "offender", "last_statement", "last_name", "first_name", "tdcj_number", "41", "date", "race", "county" ]
     
     for row in rows[1:]:
         datacol = {} 
@@ -98,9 +98,9 @@ def main():
 
             i+=1
 
-        data['Executions'] = jsondata
+        data['executions'].update(datacol)
 
-    print data
+    print json.dumps(data)
     f = file('texas_execution.json', 'wb')
     sys.stdout = f
 
