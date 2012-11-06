@@ -1,4 +1,5 @@
 import re, sys, os, errno
+import pprint
 import simplejson as json
 import urllib2
 from bs4 import BeautifulSoup
@@ -55,6 +56,12 @@ def buildOffenderInfo(link):
         cols = tag.find_all('td')
         obj[str(cols[-2].string)] = str(cols[-1].string).strip()
 
+    extra_data_cols = linksoup.select('span.text_bold')
+    for edcol in extra_data_cols:
+        # Grab the value for each of these extra fields describing the execution
+        value = edcol.parent.contents[-1].strip()
+        obj[str(edcol.string).strip()] = str(value)
+
     return obj
 
 def buildStatementData(link):
@@ -73,36 +80,28 @@ def main():
 
     rows = soup.find(id="body").find_all('tr')
 
-    columns = []
-    for col in rows[0]: 
-        if col.string != '\n':
-            columns.append(str(col.string))
-
+    columns = [ "Execution", "Offender", "Last Statement", "Last Name", "First Name", "TDCJ Number", "41", "Date", "Race", "County" ]
+    
     for row in rows[1:]:
         datacol = {} 
         i = 0
         for col in row.find_all('td'):
-            if col.string == 'Offender Information':
-                link = buildPageUrl("/"+col.a['href'])
-                print link
-                datacol['Offender Information'] = buildOffenderInfo(link)
-            elif col.string == 'Last Statement':
-                link = buildPageUrl("/"+col.a['href'])
-                print link
-                datacol['Statement'] = buildStatementData(link)
+            if col.string == None:
+                if col.a.string == 'Offender Information':
+                    link = buildPageUrl("/"+col.a['href'])
+                    datacol[columns[i]] = buildOffenderInfo(link)
+                elif col.a.string == 'Last Statement':
+                    link = buildPageUrl("/"+col.a['href'])
+                    datacol[columns[i]] = buildStatementData(link)
             else: 
                 datacol[columns[i]] = col.string
 
             i+=1
 
-        jsondata = json.dumps(datacol, sort_keys=True, indent=4 * ' ')
-        #print jsondata
-        break
+        jsondata = json.dumps(datacol)
         data.append(jsondata)
 
     print data
-    #textfile = open("/home/tasp/Dropbox/Data/texas_deathrow_data.json", "w")
-    #textfile.write(data)
 
 if __name__ == '__main__':
     main()
