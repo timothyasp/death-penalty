@@ -18,35 +18,6 @@ class Scrape:
 def buildPageUrl(page):
     return baseurl + page
 
-def cleanTitle(title):
-    return re.sub(r'&[^\s]*;', '', title)
-
-def downloadImage(subdir, imgdir, url):
-    filename = re.search(r"""[^/]+$""", str(url)).group(0)
-    print "Downloading " + filename + "....."
-
-    req = urllib2.Request(baseurl + url)
-    req.add_header('Referer', baseurl)
-
-    response = urllib2.urlopen(req)
-
-    directory = download_dir + subdir 
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    imgdir = directory + '/' + re.sub(' ', '-', imgdir)
-    if not os.path.exists(imgdir):
-        os.makedirs(imgdir)
-
-    filepath = imgdir + '/' + filename
-    if not os.path.isfile(filepath):
-        print "Saving to " + filepath
-        output = open(filepath, 'wb')
-        output.write(response.read())
-        output.close()
-    else:
-        print "Already downloaded, skipping"
-
 def buildOffenderInfo(link):
     linksoup = BeautifulSoup(urllib2.urlopen(link))
     tags = linksoup.find('body').find_all('tr')
