@@ -47,13 +47,17 @@ def buildStatementData(link):
 
 def main():
 
-    data = {} 
+    saved = sys.stdout
+    f = file('texas_executions.json', 'wb')
+    fmin = file('texas_executions.min.json', 'w')
+    sys.stdout = f
+
+    data = {"executions": []} 
 
     soup = BeautifulSoup(urllib2.urlopen(buildPageUrl(basepage)))
 
+    columns = [ "id", "offender_extended_information", "last_statement", "last_name", "first_name", "tdcj_number", "age", "date", "race", "county" ]
     rows = soup.find(id="body").find_all('tr')
-
-    columns = [ "id", "offender", "last_statement", "last_name", "first_name", "tdcj_number", "41", "date", "race", "county" ]
     
     for row in rows[1:]:
         datacol = {} 
@@ -66,17 +70,20 @@ def main():
                 elif col.a.string == 'Last Statement':
                     link = buildPageUrl("/"+col.a['href'])
                     datacol[columns[i]] = buildStatementData(link)
+
             else: 
                 datacol[columns[i]] = col.string
 
             i+=1
 
-        data['executions'].update(datacol)
+        data['executions'].append(datacol)
 
-    print json.dumps(data)
-    f = file('texas_execution.json', 'wb')
-    sys.stdout = f
-
+    print json.dumps(data, sort_keys=True, indent=4)
+    fmin.write(json.dumps(data))
+    sys.stdout = saved
+    f.close()
+    fmin.close()
+    print "Collection finished"
 
 if __name__ == '__main__':
     main()
