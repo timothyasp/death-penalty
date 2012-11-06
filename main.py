@@ -39,7 +39,9 @@ def buildStatementData(link):
     linksoup = BeautifulSoup(urllib2.urlopen(link))
     obj = {}
     for p in linksoup.select('p.text_bold'):
-        obj[str(p.string).strip()] = p.find_next_sibling().string
+        key_name = str(p.string)
+        key = key_name.replace(":", "")
+        obj[key] = str(p.find_next_sibling().string).strip()
 
     return obj
 
