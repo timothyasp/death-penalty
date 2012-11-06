@@ -74,7 +74,7 @@ def buildStatementData(link):
 
 def main():
 
-    data = []
+    data = {} 
 
     soup = BeautifulSoup(urllib2.urlopen(buildPageUrl(basepage)))
 
@@ -98,10 +98,12 @@ def main():
 
             i+=1
 
-        jsondata = json.dumps(datacol)
-        data.append(jsondata)
+        data['Executions'] = jsondata
 
     print data
+    f = file('texas_execution.json', 'wb')
+    sys.stdout = f
+
 
 if __name__ == '__main__':
     main()
